@@ -1,0 +1,13 @@
+---
+kubernetes:
+  children:
+    master:
+      hosts:
+        "k3smaster":
+          ansible_user: "shiva"
+          ansible_host: "192.168.86.237"
+    worker:
+      hosts:
+        "k3sworker":
+          ansible_user: "shiva"
+          ansible_host: "192.168.86.248"
