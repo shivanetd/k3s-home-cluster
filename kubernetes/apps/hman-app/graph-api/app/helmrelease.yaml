@@ -1,5 +1,5 @@
-apiVersion: helm.toolkit.fluxcd,io/v2beta2
-kind: HelpRelease
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
 metadata:
   name: graph-api
 spec:
@@ -31,22 +31,24 @@ spec:
               repository: shivanetd/airbnb-graphapi
               tag: v1
             env:
-              PORT: &port 8080
-            probes:
-              liveness: &probes
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /health
-                    port: *port
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 3
-              readiness: *probes
-              startup:
-                enabled: false
+              - name: PORT
+                value: &port 8080
+              - name: MONGODB_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: graph-secret
+                    key: mongo-url
+              - name: MONGODB_DATABASE
+                valueFrom:
+                  secretKeyRef:
+                    name: graph-secret
+                    key: mongo-db
+              - name: ACCU_APIKEY
+                valueFrom:
+                  secretKeyRef:
+                    name: graph-secret
+                    key: accu-token
+
             resources:
               requests:
                 cpu: 5m
