@@ -1,5 +1,5 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
-kind: HelpRelease
+kind: HelmRelease
 metadata:
   name: graph-api
 spec:
