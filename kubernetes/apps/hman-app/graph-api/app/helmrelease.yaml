@@ -29,7 +29,7 @@ spec:
           main:
             image:
               repository: shivanetd/airbnb-graphapi
-              tag: v1
+              tag: v2
             env:
               - name: PORT
                 value: &port 8080
@@ -54,7 +54,7 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /
+                    path: /actuator/health
                     port: *port
                   initialDelaySeconds: 0
                   periodSeconds: 10
