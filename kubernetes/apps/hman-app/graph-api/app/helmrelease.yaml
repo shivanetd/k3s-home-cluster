@@ -63,10 +63,9 @@ spec:
               readiness: *probes
             resources:
               requests:
-                cpu: 5m
-                memory: 10M
+                memory: 250M
               limits:
-                memory: 64M
+                memory: 500M
         pod:
           securityContext:
             runAsUser: 568
