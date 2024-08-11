@@ -29,7 +29,11 @@ spec:
           main:
             image:
               repository: ghcr.io/shivanetd/stock-feed
-              tag: v1
+              tag: v3
+              args:
+                - AAPL
+                - AMD
+                - NVDA
             env:
               - name: PORT
                 value: &port 8080
@@ -38,12 +42,12 @@ spec:
                   secretKeyRef:
                     name: stock-secret
                     key: mongo-url
-              - name: Alpaca_Key
+              - name: Api_Key
                 valueFrom:
                   secretKeyRef:
                     name: stock-secret
                     key: alpaca-key
-              - name: Alpaca_Secret
+              - name: Api_Secret
                 valueFrom:
                   secretKeyRef:
                     name: stock-secret
