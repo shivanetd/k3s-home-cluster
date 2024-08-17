@@ -1,0 +1,137 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: stock-feed-app
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      main:
+        strategy: RollingUpdate
+        containers:
+          main:
+            image:
+              repository: ghcr.io/shivanetd/stock-feed-app
+              tag: v1
+              args:
+                - AAPL
+                - AMD
+                - NVDA
+            env:
+              - name: PORT
+                value: &port 8080
+              - name: MONGODB_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-app-secret
+                    key: mongo-url
+              - name: API_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-app-secret
+                    key: api-key
+              - name: API_SECRET
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-app-secret
+                    key: api-key-secret
+              - name: WS_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-app-secret
+                    key: api-url
+              - name: MONGODB_DATABASE_FEED
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-app-secret
+                    key: database
+              - name: API_KEY_HEADER
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-app-secret
+                    key: api-key-header
+              - name: API_SECRET_HEADER
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-app-secret
+                    key: api-key-secret-header
+              - name: TICKERS
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-app-secret
+                    key: tickers
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                memory: 250M
+              limits:
+                memory: 500M
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+    ingress:
+      main:
+        enabled: false
+      external:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+        hosts:
+          - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+        tls:
+          - hosts:
+              - *host
+      internal:
+        enabled: true
+        className: internal
+        hosts:
+          - host: &host "{{ .Release.Name }}-internal.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+        tls:
+          - hosts:
+              - *host
