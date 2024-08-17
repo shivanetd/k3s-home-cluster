@@ -28,8 +28,8 @@ spec:
         containers:
           main:
             image:
-              repository: ghcr.io/shivanetd/stock-feed
-              tag: v3
+              repository: ghcr.io/shivanetd/stock-feed-app
+              tag: v1
               args:
                 - AAPL
                 - AMD
@@ -42,18 +42,42 @@ spec:
                   secretKeyRef:
                     name: stock-secret
                     key: mongo-url
-              - name: Api_Key
+              - name: API_KEY
                 valueFrom:
                   secretKeyRef:
                     name: stock-secret
-                    key: alpaca-key
-              - name: Api_Secret
+                    key: api-key
+              - name: API_SECRET
                 valueFrom:
                   secretKeyRef:
                     name: stock-secret
-                    key: alpaca-secret
-              - name: Ws_Url
-                value: "wss://stream.data.alpaca.markets/v2/iex"
+                    key: api-key-secret
+              - name: WS_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-secret
+                    key: api-url
+              - name: MONGODB_DATABASE_FEED
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-secret
+                    key: database
+              - name: API_KEY_HEADER
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-secret
+                    key: api-key-header
+              - name: API_SECRET_HEADER
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-secret
+                    key: api-key-secret-header
+              - name: TICKERS
+                valueFrom:
+                  secretKeyRef:
+                    name: stock-secret
+                    key: tickers
+
             resources:
               requests:
                 memory: 250M
