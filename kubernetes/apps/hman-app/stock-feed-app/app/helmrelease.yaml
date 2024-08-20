@@ -29,7 +29,7 @@ spec:
           main:
             image:
               repository: ghcr.io/shivanetd/stock-feed-app
-              tag: v1
+              tag: v2
               args:
                 - AAPL
                 - AMD
